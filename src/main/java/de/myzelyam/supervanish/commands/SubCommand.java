@@ -40,10 +40,18 @@ public abstract class SubCommand implements Executable {
         plugin.getVisibilityChanger().showPlayer(player);
     }
 
+    public void superShowPlayer(Player player) {
+        plugin.getVisibilityChanger().superShowPlayer(player);
+    }
 
     public boolean isVanished(UUID uuid) {
         return plugin.getVanishStateMgr().isVanished(uuid);
     }
+
+    public boolean isSuperVanished(UUID uuid) {
+        return plugin.getVanishStateMgr().isSuperVanished(uuid);
+    }
+
 
     public boolean canDo(CommandSender sender, CommandAction action, boolean sendErrors) {
         if (!(sender instanceof Player))

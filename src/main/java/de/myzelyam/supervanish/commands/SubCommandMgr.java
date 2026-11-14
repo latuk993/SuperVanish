@@ -69,6 +69,17 @@ public class SubCommandMgr {
                     && args.length == 1) {
                 executable = new VanishSelf(plugin);
             }
+            // SuperVanishSelf тут не просто суперваниш из названия, а ваниш от модеров, чтобы админы могли только себя и тех кто в вайтлисте вдиеть
+            if ((args[0].equalsIgnoreCase("super"))
+                    && args.length == 1) {
+                executable = new SuperVanishSelf(plugin);
+            }
+
+            if ((args[0].equalsIgnoreCase("add"))
+                    && args.length == 2) {
+                executable = new SuperVanishAdd(plugin);
+            }
+
             //
             if (args[0].equalsIgnoreCase("help")
                     || args[0].equalsIgnoreCase("commands")

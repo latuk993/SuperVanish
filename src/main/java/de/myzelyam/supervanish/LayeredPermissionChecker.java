@@ -12,6 +12,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
+import de.myzelyam.supervanish.CommandType;
+
 public class LayeredPermissionChecker {
 
     private final SuperVanish plugin;
@@ -26,7 +28,7 @@ public class LayeredPermissionChecker {
      * @return TRUE if sender has *permission* to use /sv on, else FALSE; TRUE doesn't mean that sender can
      * actually use /sv on
      */
-    public boolean hasPermissionToVanish(CommandSender sender) {
+    public boolean hasPermissionToVanish(CommandSender sender, CommandType type) {
         if (settings.getBoolean(
                 "IndicationFeatures.LayeredPermissions.LayeredSeeAndUsePermissions", false)) {
             if (sender.hasPermission("sv.use")) return true;
@@ -35,7 +37,13 @@ public class LayeredPermissionChecker {
                 permissionLevel = plugin.getVanishPlayer((Player) sender).getUsePermissionLevel();
             else permissionLevel = getLayeredPermissionLevel(sender, "use");
             return permissionLevel > 0 && sender.hasPermission("sv.use.level" + permissionLevel);
-        } else return sender.hasPermission("sv.use");
+        } else
+            if (type == CommandType.GLOBAL) {
+                return sender.hasPermission("sv.use");
+            }
+            else {
+                return sender.hasPermission("sv.use.super");
+            }
     }
 
     public boolean hasPermissionToSee(Player viewer, Player viewed) {

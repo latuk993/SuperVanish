@@ -239,8 +239,8 @@ public class SuperVanish extends JavaPlugin implements SuperVanishPlugin {
         return !visibilityChanger.getHider().isHidden(viewed, viewer);
     }
 
-    public boolean hasPermissionToVanish(CommandSender sender) {
-        return layeredPermissionChecker.hasPermissionToVanish(sender);
+    public boolean hasPermissionToVanish(CommandSender sender, CommandType type) {
+        return layeredPermissionChecker.hasPermissionToVanish(sender, type);
     }
 
     public boolean hasPermissionToSee(Player viewer, Player viewed) {

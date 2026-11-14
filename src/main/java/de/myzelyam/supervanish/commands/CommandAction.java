@@ -8,6 +8,7 @@
 
 package de.myzelyam.supervanish.commands;
 
+import de.myzelyam.supervanish.CommandType;
 import de.myzelyam.supervanish.SuperVanish;
 import de.myzelyam.supervanish.utils.Validation;
 
@@ -25,7 +26,7 @@ public enum CommandAction {
         @Override
         public boolean checkPermission(CommandSender sender, SuperVanish plugin) {
             Validation.checkNotNull(plugin, "plugin cannot be null");
-            return plugin.hasPermissionToVanish(sender);
+            return plugin.hasPermissionToVanish(sender, CommandType.GLOBAL);
         }
     },
     VANISH_OTHER(
@@ -82,7 +83,19 @@ public enum CommandAction {
             "sv.help",
             true,
             "/sv help",
-            "Shows this help page");
+            "Shows this help page"),
+    SUPER_VANISH_SELF(
+            "sv.use.super",
+                    false,
+                    "/sv super [on|off]",
+                    "Toggles your super visibility") {
+        @Override
+        public boolean checkPermission(CommandSender sender, SuperVanish plugin) {
+            Validation.checkNotNull(plugin, "plugin cannot be null");
+            return plugin.hasPermissionToVanish(sender, CommandType.SUPER);
+        }
+    };
+
 
     /**
      * Use {@link #checkPermission(CommandSender, SuperVanish)} to check whether a {@link CommandSender} has

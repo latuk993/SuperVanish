@@ -36,6 +36,12 @@ public class FileVanishStateMgr extends VanishStateMgr {
     }
 
     @Override
+    public boolean isSuperVanished(final UUID uuid) {
+        return getSuperVanishedPlayersOnFile().contains(uuid);
+    }
+
+
+    @Override
     public void setVanishedState(final UUID uuid, String name, boolean hide, String causeName) {
         PlayerVanishStateChangeEvent event = new PlayerVanishStateChangeEvent(uuid, name, hide, causeName);
         Bukkit.getPluginManager().callEvent(event);
@@ -93,6 +99,25 @@ public class FileVanishStateMgr extends VanishStateMgr {
         }
         return vanishedPlayerUUIDs;
     }
+
+    private Set<UUID> getSuperVanishedPlayersOnFile() {
+        List<String> vanishedPlayerUUIDStrings = plugin.getPlayerData().getStringList("SuperInvisiblePlayers");
+        Set<UUID> vanishedPlayerUUIDs = new HashSet<>();
+        for (String uuidString : new ArrayList<>(vanishedPlayerUUIDStrings)) {
+            try {
+                vanishedPlayerUUIDs.add(UUID.fromString(uuidString));
+            } catch (IllegalArgumentException e) {
+                vanishedPlayerUUIDStrings.remove(uuidString);
+                plugin.log(Level.WARNING,
+                        "The data.yml file contains an invalid player uuid," +
+                                " deleting it.");
+                plugin.getPlayerData().set("SuperInvisiblePlayers", vanishedPlayerUUIDStrings);
+                plugin.getConfigMgr().getPlayerDataFile().save();
+            }
+        }
+        return vanishedPlayerUUIDs;
+    }
+
 
     private void setVanishedPlayersOnFile(Set<UUID> vanishedPlayers) {
         List<String> vanishedPlayerUUIDStrings = new ArrayList<>();

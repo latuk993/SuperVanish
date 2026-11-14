@@ -44,11 +44,20 @@ public class VisibilityChanger {
         showPlayer(player, null, false);
     }
 
+    public void superShowPlayer(Player player) {
+        superShowPlayer(player, null, false);
+    }
+
+
     public void hidePlayer(Player player, String hiderName) {
         hidePlayer(player, hiderName, false);
     }
 
     public void showPlayer(Player player, String hiderName) {
+        showPlayer(player, hiderName, false);
+    }
+
+    public void superShowPlayer(Player player, String hiderName) {
         showPlayer(player, hiderName, false);
     }
 
@@ -155,6 +164,57 @@ public class VisibilityChanger {
             plugin.logException(e);
         }
     }
+
+    public void superShowPlayer(final Player player, final String showerName, boolean silent) {
+        try {
+            Validation.checkNotNull("player cannot be null", player);
+            if (!plugin.getVanishStateMgr().isSuperVanished(player.getUniqueId())) {
+                plugin.log(Level.WARNING,
+                        "Failed to show " + player.getName() + " since that player is already visible.");
+                return;
+            }
+            // call event
+            PlayerShowEvent e = new PlayerShowEvent(player, silent); // TODO
+            plugin.getServer().getPluginManager().callEvent(e);
+            if (e.isCancelled()) return;
+            silent = e.isSilent();
+            // metadata
+            player.removeMetadata("vanished", plugin);
+            // show
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers())
+                if (!plugin.hasPermissionToSee(onlinePlayer, player))
+                    plugin.getVisibilityChanger().getHider().setHidden(player, onlinePlayer, false);
+            // action bars
+            if (plugin.getActionBarMgr() != null && config.getBoolean("MessageOptions.DisplayActionBar")) {
+                plugin.getActionBarMgr().removeActionBar(player);
+            }
+            // sleep state
+            player.setSleepingIgnored(false);
+            // state
+            plugin.getVanishStateMgr().setVanishedState(player.getUniqueId(),
+                    player.getName(), false, showerName);
+            // chat message
+            if (showerName == null)
+                plugin.sendMessage(player, "OnReappear", player);
+            else
+                plugin.sendMessage(player, "OnReappearCausedByOtherPlayer", player, showerName);
+            // fly
+            // remove fly if not spectator or creative and no perm
+            if (config.getBoolean("InvisibilityFeatures.Fly.DisableOnReappear")
+                    && !player.hasPermission("sv.keepfly")
+                    && (player.getGameMode() == GameMode.SURVIVAL
+                    || player.getGameMode() == GameMode.ADVENTURE)
+                    && config.getBoolean("InvisibilityFeatures.Fly.Enable")) {
+                player.setAllowFlight(false);
+            }
+            // call post event
+            PostPlayerShowEvent e2 = new PostPlayerShowEvent(player, silent);
+            plugin.getServer().getPluginManager().callEvent(e2);
+        } catch (Exception e) {
+            plugin.logException(e);
+        }
+    }
+
 
     public PlayerHider getHider() {
         return hider;
